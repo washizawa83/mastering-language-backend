@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Boolean
 from sqlalchemy_utils import UUIDType, EmailType
 
 from api.db import Base
@@ -12,3 +12,4 @@ class User(Base):
     username = Column(String(1024))
     email = Column(EmailType, unique=True)
     password = Column(String(1024))
+    is_active = Column(Boolean, default=False)
