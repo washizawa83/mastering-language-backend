@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.schemas.user as user_schema
@@ -23,10 +23,8 @@ async def verification(
         body: auth_schema.Verification,
         db: AsyncSession = Depends(get_db)
 ):
-    is_success = await auth_cruds.verify_user_code(db, body)
+    await auth_cruds.verify_user_code(db, body)
 
-    if not is_success:
-        return None
-
+    await auth_cruds.delete_verification(db, body)
     active_user = await auth_cruds.update_user_state(db, body)
     return active_user.username

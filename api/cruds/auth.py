@@ -39,7 +39,6 @@ async def update_user_state(
         raise HTTPException(status_code=404, detail="User not found")
 
     user.is_active = True
-    db.add(user)
     await db.commit()
     await db.refresh(user)
 
@@ -55,21 +54,44 @@ async def is_email_registered(db: AsyncSession, email: str) -> bool:
 async def create_verification(
     db: AsyncSession, email: str
 ) -> auth_model.Verification:
-    verification_code = await create_verification_code()
+    verification_code = create_verification_code()
     verification = auth_model.Verification(email=email, verification_code=verification_code)
     db.add(verification)
     await db.commit()
     await db.refresh(verification)
     return verification
 
+async def update_verification(
+    db: AsyncSession, verification_data: auth_schema.Verification
+):
+    stmt = select(auth_model.Verification).filter_by(email=verification_data.email)
+    result = await db.execute(stmt)
+    stored_verification = result.scalar_one_or_none()
 
-async def create_verification_code() -> int:
+    stored_verification.verification_code = create_verification_code()
+    db.add(stored_verification)
+    await db.commit()
+    await db.refresh(stored_verification)
+
+
+async def delete_verification(
+    db: AsyncSession, verification_data: auth_schema.Verification
+):
+    stmt = select(auth_model.Verification).filter_by(email=verification_data.email)
+    result = await db.execute(stmt)
+    stored_verification = result.scalar_one_or_none()
+
+    await db.delete(stored_verification)
+    await db.commit()
+
+
+def create_verification_code() -> int:
     return random.randint(100000, 999999)
 
 
 async def verify_user_code(
     db: AsyncSession, verification_data: auth_schema.Verification
-) -> bool:
+):
     stmt = select(auth_model.Verification).filter_by(email=verification_data.email)
     result = await db.execute(stmt)
     stored_verification = result.scalar_one_or_none()
@@ -77,4 +99,6 @@ async def verify_user_code(
     if not stored_verification:
         raise HTTPException(status_code=400, detail='Authentication information does not exist')
 
-    return verification_data.verification_code == stored_verification.verification_code
+    if not verification_data.verification_code == stored_verification.verification_code:
+        await update_verification(db, verification_data)
+        raise HTTPException(status_code=400, detail='Incorrect authentication information')
