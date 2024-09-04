@@ -9,6 +9,7 @@ class BaseUser(BaseModel):
 class User(BaseUser):
     id: str
     password: str
+    is_active: bool
 
     class Config:
         orm_mode = True
