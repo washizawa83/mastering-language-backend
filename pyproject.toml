@@ -13,6 +13,7 @@ sqlalchemy = "^2.0.32"
 aiomysql = "^0.2.0"
 sqlalchemy-utils = "^0.41.2"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-dotenv = "^1.0.1"
 
 
 [build-system]
