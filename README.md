@@ -10,7 +10,7 @@ docker-compose build --no-cache
 
 パッケージ追加
 ```shell
-docker-compose exec demo-app poetry add パッケージ名
+docker-compose exec app poetry add パッケージ名
 ```
 
 API起動
