@@ -4,54 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from fastapi import HTTPException
 
-import api.models.user as user_model
-import api.schemas.user as user_schema
 import api.models.auth as auth_model
-import api.utils.auth as auth_util
 import api.schemas.auth as auth_schema
 import api.utils.mail as mail_util
 
 
-async def create_user(
-    db: AsyncSession, user_create: user_schema.UserCreate
-) -> user_model.User:
-    if await is_email_registered(db, user_create.email):
-        raise HTTPException(status_code=400, detail="Email is already registered")
-
-    user = user_model.User(
-        username=user_create.username,
-        email=user_create.email,
-        password=auth_util.get_password_hash(user_create.password),
-    )
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-    return user
-
-
-async def update_user_state(
-    db: AsyncSession, verification_data: auth_schema.Verification
-) -> user_model.User:
-    stmt = select(user_model.User).filter_by(email=verification_data.email)
-    result = await db.execute(stmt)
-    user = result.scalar_one_or_none()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    user.is_active = True
-    await db.commit()
-    await db.refresh(user)
-
-    return user
-
-async def is_email_registered(db: AsyncSession, email: str) -> bool:
-    stmt = select(user_model.User).filter_by(email=email)
-    result = await db.execute(stmt)
-    user = result.scalar_one_or_none()
-
-    return user is not None
-@mail_util.after_verification_send_mail
+@mail_util.after_verification_send_mail_decorator
 async def create_verification(
     db: AsyncSession, email: str
 ) -> auth_model.Verification:
@@ -62,7 +20,7 @@ async def create_verification(
     await db.refresh(verification)
     return verification
 
-@mail_util.after_verification_send_mail
+@mail_util.after_verification_send_mail_decorator
 async def update_verification(
     db: AsyncSession, verification_data: auth_schema.Verification
 ) -> auth_model.Verification:
