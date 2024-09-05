@@ -9,6 +9,7 @@ import api.schemas.user as user_schema
 import api.models.auth as auth_model
 import api.utils.auth as auth_util
 import api.schemas.auth as auth_schema
+import api.utils.mail as mail_util
 
 
 async def create_user(
@@ -50,7 +51,7 @@ async def is_email_registered(db: AsyncSession, email: str) -> bool:
     user = result.scalar_one_or_none()
 
     return user is not None
-
+@mail_util.after_verification_send_mail
 async def create_verification(
     db: AsyncSession, email: str
 ) -> auth_model.Verification:
@@ -61,9 +62,10 @@ async def create_verification(
     await db.refresh(verification)
     return verification
 
+@mail_util.after_verification_send_mail
 async def update_verification(
     db: AsyncSession, verification_data: auth_schema.Verification
-):
+) -> auth_model.Verification:
     stmt = select(auth_model.Verification).filter_by(email=verification_data.email)
     result = await db.execute(stmt)
     stored_verification = result.scalar_one_or_none()
@@ -72,6 +74,7 @@ async def update_verification(
     db.add(stored_verification)
     await db.commit()
     await db.refresh(stored_verification)
+    return stored_verification
 
 
 async def delete_verification(
