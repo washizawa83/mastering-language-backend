@@ -1,13 +1,20 @@
+import os
 import random
+from datetime import datetime, timezone, timedelta
+import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from fastapi import HTTPException
+from jose import jwt
+from dotenv import load_dotenv
 
 import api.models.auth as auth_model
 import api.schemas.auth as auth_schema
 import api.utils.mail as mail_util
 
+
+load_dotenv()
 
 @mail_util.after_verification_send_mail_decorator
 async def create_verification(
@@ -63,3 +70,19 @@ async def verify_user_code(
     if not verification_data.verification_code == stored_verification.verification_code:
         await update_verification(db, verification_data)
         raise HTTPException(status_code=400, detail='Incorrect authentication information')
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    data = {k: (v.hex if isinstance(v, uuid.UUID) else v) for k, v in data.items()}
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({'exp': expire})
+    encoded_jwt = jwt.encode(
+        to_encode,
+        os.environ.get('SECRET_KEY'),
+        algorithm=os.environ.get('ALGORITHM')
+    )
+    return encoded_jwt
