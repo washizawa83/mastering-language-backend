@@ -17,15 +17,15 @@ async def get_user(
     return user
 
 async def create_user(
-    db: AsyncSession, user_create: user_schema.UserCreate
+    db: AsyncSession, form_data: auth_schema.SignupRequestForm
 ) -> user_model.User:
-    if await is_email_registered(db, user_create.email):
+    if await is_email_registered(db, form_data.email):
         raise HTTPException(status_code=400, detail="Email is already registered")
 
     user = user_model.User(
-        username=user_create.username,
-        email=user_create.email,
-        password=auth_util.get_password_hash(user_create.password),
+        username=form_data.username,
+        email=form_data.email,
+        password=auth_util.get_password_hash(form_data.password),
     )
     db.add(user)
     await db.commit()
