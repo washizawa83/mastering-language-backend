@@ -18,3 +18,9 @@ class TokenData(BaseModel):
 class EmailPasswordRequestForm(BaseModel):
     email: EmailStr
     password: str
+
+
+class SignupRequestForm(BaseModel):
+    username: str
+    email: EmailStr
+    password: str

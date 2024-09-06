@@ -16,10 +16,10 @@ router = APIRouter()
 
 @router.post('/signup', response_model=bool)
 async def signup(
-    body: user_schema.UserCreate,
+    form_data: auth_schema.SignupRequestForm = Depends(),
     db: AsyncSession = Depends(get_db)
 ):
-    new_user = await user_cruds.create_user(db, body)
+    new_user = await user_cruds.create_user(db, form_data)
     await auth_cruds.create_verification(db, new_user.email)
     return new_user is not None
 
