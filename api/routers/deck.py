@@ -40,6 +40,17 @@ async def create_deck(
     return deck_schema.DeckResponse.model_validate(deck)
 
 
+@router.put('/deck/{deck_id}', response_model=deck_schema.DeckResponse)
+async def update_deck(
+    deck_id: str,
+    form_data: deck_schema.DeckUpdate = Depends(),
+    db: AsyncSession = Depends(get_db),
+    user: user_schema.User = Depends(get_active_user_permission),
+):
+    deck = await deck_crud.update_deck(db, form_data, deck_id, user.id)
+    return deck_schema.DeckResponse.model_validate(deck)
+
+
 @router.delete('/deck/{deck_id}', response_model=None)
 async def delete_deck(
     deck_id: str,
