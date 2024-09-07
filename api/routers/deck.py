@@ -18,12 +18,7 @@ async def get_deck(
     user: user_schema.User = Depends(get_active_user_permission),
 ):
     deck = await deck_crud.get_deck(db, deck_id, user.id)
-    return deck_schema.DeckResponse(
-        id=deck.id,
-        name=deck.name,
-        updated_at=deck.updated_at,
-        created_at=deck.created_at,
-    ).model_dump()
+    return deck_schema.DeckResponse.model_validate(deck)
 
 
 @router.get('/decks', response_model=list[deck_schema.DeckResponse])
@@ -33,12 +28,7 @@ async def get_decks(
 ):
     decks = await deck_crud.get_decks(db, user.id)
     return [
-        deck_schema.DeckResponse(
-            id=deck.id,
-            name=deck.name,
-            updated_at=deck.updated_at,
-            created_at=deck.created_at,
-        ).model_dump()
+        deck_schema.DeckResponse.model_validate(deck)
         for deck in decks
     ]
 
@@ -50,12 +40,7 @@ async def create_deck(
     user: user_schema.User = Depends(get_active_user_permission),
 ):
     deck = await deck_crud.create_deck(db, form_data, user.id)
-    return deck_schema.DeckResponse(
-        id=deck.id,
-        name=deck.name,
-        updated_at=deck.updated_at,
-        created_at=deck.created_at,
-    ).model_dump()
+    return deck_schema.DeckResponse.model_validate(deck)
 
 
 @router.delete('/deck/{deck_id}', response_model=None)

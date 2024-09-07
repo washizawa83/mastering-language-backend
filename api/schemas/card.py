@@ -25,6 +25,10 @@ class CardResponse(BaseCard):
     created_at: datetime
     deck_id: uuid.UUID
 
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
     @field_serializer('id')
     def serialize_id(self, id: uuid.UUID) -> str:
         return str(id)

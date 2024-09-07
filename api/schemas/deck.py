@@ -17,6 +17,10 @@ class DeckResponse(BaseDeck):
     updated_at: datetime
     created_at: datetime
 
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
     @model_serializer
     def serialize(self):
         return {

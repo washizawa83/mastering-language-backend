@@ -18,20 +18,7 @@ async def get_card(
     user: user_schema.User = Depends(get_active_user_permission),
 ):
     card = await card_crud.get_card(db, card_id, user.id)
-    return card_schema.CardResponse(
-        id=card.id,
-        sentence=card.sentence,
-        meaning=card.meaning,
-        image_path=card.image_path,
-        etymology=card.etymology,
-        previous_answer_date=card.previous_answer_date,
-        next_answer_date=card.next_answer_date,
-        retention_state=card.retention_state,
-        savings_score=card.savings_score,
-        updated_at=card.updated_at,
-        created_at=card.created_at,
-        deck_id=card.deck_id,
-    ).model_dump()
+    return card_schema.CardResponse.model_validate(card)
 
 
 @router.get('/cards/{deck_id}', response_model=list[card_schema.CardResponse])
@@ -42,20 +29,7 @@ async def get_cards(
 ):
     cards = await card_crud.get_cards(db, deck_id)
     return [
-        card_schema.CardResponse(
-            id=card.id,
-            sentence=card.sentence,
-            meaning=card.meaning,
-            image_path=card.image_path,
-            etymology=card.etymology,
-            previous_answer_date=card.previous_answer_date,
-            next_answer_date=card.next_answer_date,
-            retention_state=card.retention_state,
-            savings_score=card.savings_score,
-            updated_at=card.updated_at,
-            created_at=card.created_at,
-            deck_id=card.deck_id,
-        ).model_dump()
+        card_schema.CardResponse.model_validate(card)
         for card in cards
     ]
 
@@ -68,20 +42,7 @@ async def create_card(
     user: user_schema.User = Depends(get_active_user_permission),
 ):
     card = await card_crud.create_card(db, form_data, deck_id, user.id)
-    return card_schema.CardResponse(
-        id=card.id,
-        sentence=card.sentence,
-        meaning=card.meaning,
-        image_path=card.image_path,
-        etymology=card.etymology,
-        previous_answer_date=card.previous_answer_date,
-        next_answer_date=card.next_answer_date,
-        retention_state=card.retention_state,
-        savings_score=card.savings_score,
-        updated_at=card.updated_at,
-        created_at=card.created_at,
-        deck_id=card.deck_id,
-    ).model_dump()
+    return card_schema.CardResponse.model_validate(card)
 
 
 @router.delete('/card/{card_id', response_model=None)

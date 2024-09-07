@@ -21,4 +21,6 @@ class UserCreate(BaseUser):
 
 
 class UserResponse(BaseUser):
-    pass
+    class Config:
+        orm_mode = True
+        from_attributes = True
