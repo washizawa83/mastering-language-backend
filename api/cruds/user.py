@@ -3,7 +3,6 @@ from sqlalchemy.future import select
 from fastapi import HTTPException, status, Depends
 
 import api.models.user as user_model
-import api.schemas.user as user_schema
 import api.schemas.auth as auth_schema
 import api.utils.auth as auth_util
 
