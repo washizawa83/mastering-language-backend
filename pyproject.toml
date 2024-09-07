@@ -25,12 +25,11 @@ pre-commit = "^3.8.0"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.ruff.lint]
+[tool.ruff]
 select = ["E4", "E7", "E9", "F", "B"]
-ignore = ["E501", "B008", "F821"]
+ignore = ["E501", "B008"]
 unfixable = ["B"]
 
-[tool.ruff]
 line-length = 80
 indent-width = 4
 
