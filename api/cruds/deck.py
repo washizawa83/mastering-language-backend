@@ -49,6 +49,26 @@ async def create_deck(
     return deck
 
 
+async def update_deck(
+    db: AsyncSession,
+    form_data: deck_schema.DeckUpdate,
+    deck_id: str,
+    user_id: str,
+):
+    deck = await get_model_by_id(db, deck_model.Deck, deck_id)
+    if not deck:
+        raise HTTPException(status_code=404, detail='Deck not found')
+
+    if deck.user_id != user_id:
+        raise HTTPException(
+            status_code=403, detail='You are not authorized to deck.'
+        )
+    deck.name = form_data.name
+    await db.commit()
+    await db.refresh(deck)
+    return deck
+
+
 async def delete_deck(db: AsyncSession, deck: deck_model.Deck):
     await db.delete(deck)
     await db.commit()

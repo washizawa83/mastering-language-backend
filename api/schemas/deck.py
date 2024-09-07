@@ -12,6 +12,10 @@ class DeckCreate(BaseDeck):
     pass
 
 
+class DeckUpdate(BaseDeck):
+    pass
+
+
 class DeckResponse(BaseDeck):
     id: uuid.UUID
     updated_at: datetime
