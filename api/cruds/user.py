@@ -1,15 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 
 import api.models.user as user_model
 import api.schemas.auth as auth_schema
 import api.utils.auth as auth_util
-from api.cruds.common import get_model_by_id, get_user_by_email
 
 
 async def get_user(db: AsyncSession, user_id: str) -> user_model.User:
-    user = await get_model_by_id(db, user_model.User, user_id)
+    stmt = select(user_model.User).filter_by(id=user_id)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
     return user
 
 
@@ -52,7 +53,9 @@ async def update_user_state(
 async def authenticate_user(
     db: AsyncSession, form_data: auth_schema.EmailPasswordRequestForm
 ) -> user_model.User:
-    user = await get_user_by_email(db, form_data.email)
+    stmt = select(user_model.User).filter_by(email=form_data.email)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
 
     if not user:
         raise HTTPException(status_code=404, detail='User not found')
@@ -66,5 +69,8 @@ async def authenticate_user(
 
 
 async def is_email_registered(db: AsyncSession, email: str) -> bool:
-    user = await get_user_by_email(db, email)
+    stmt = select(user_model.User).filter_by(email=email)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
     return user is not None

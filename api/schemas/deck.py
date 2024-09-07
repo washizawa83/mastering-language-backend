@@ -12,17 +12,17 @@ class DeckCreate(BaseDeck):
     pass
 
 
+class DeckRequest(BaseDeck):
+    id: uuid.UUID
+
+
 class DeckResponse(BaseDeck):
     id: uuid.UUID
     updated_at: datetime
     created_at: datetime
 
-    class Config:
-        orm_mode = True
-        from_attributes = True
-
     @model_serializer
-    def serialize(self):
+    def serialize(self) -> dict[str, str]:
         return {
             'id': str(self.id),
             'name': self.name,

@@ -11,4 +11,4 @@ router = APIRouter()
 async def get_user(
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    return user_schema.UserResponse.model_validate(user)
+    return user_schema.UserResponse(username=user.username).model_dump()

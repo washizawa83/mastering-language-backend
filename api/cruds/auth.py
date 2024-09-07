@@ -13,9 +13,6 @@ import api.utils.mail as mail_util
 import api.utils.env as env
 
 
-DEFAULT_EXPIRES_DELTA = 15
-
-
 @mail_util.after_verification_send_mail_decorator
 async def create_verification(
     db: AsyncSession, email: str
@@ -60,13 +57,13 @@ async def delete_verification(
     await db.commit()
 
 
-def create_verification_code():
+def create_verification_code() -> int:
     return random.randint(100000, 999999)
 
 
 async def verify_user_code(
     db: AsyncSession, verification_data: auth_schema.Verification
-) -> None:
+):
     stmt = select(auth_model.Verification).filter_by(
         email=verification_data.email
     )
@@ -96,9 +93,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(
-            minutes=DEFAULT_EXPIRES_DELTA
-        )
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({'exp': expire})
     encoded_jwt = jwt.encode(to_encode, env.SECRET_KEY, algorithm=env.ALGORITHM)
     return encoded_jwt

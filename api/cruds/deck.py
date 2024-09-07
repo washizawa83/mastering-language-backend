@@ -1,18 +1,21 @@
+from http.client import HTTPException
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 import api.models.deck as deck_model
 import api.models.user as user_model
 import api.schemas.deck as deck_schema
-from api.cruds.common import get_model_by_id
 
 
 async def get_deck(
     db: AsyncSession, deck_id: str, user_id: str
 ) -> deck_model.Deck:
-    deck = await get_model_by_id(db, deck_model.Deck, deck_id)
+    stmt = select(deck_model.Deck).filter_by(id=deck_id)
+    result = await db.execute(stmt)
+    deck = result.scalar_one_or_none()
 
     if not deck:
         raise HTTPException(status_code=404, detail='Deck not found')

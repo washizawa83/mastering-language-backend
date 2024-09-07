@@ -3,7 +3,3 @@ __pycache__/
 .env
 
 .venv/
-
-.idea/**/workspace.xml
-.idea/**/statistics.xml
-.idea/**/tasks.xml

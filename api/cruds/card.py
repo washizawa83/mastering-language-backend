@@ -6,13 +6,14 @@ from fastapi import HTTPException
 import api.models.card as card_model
 import api.models.deck as deck_model
 import api.schemas.card as card_schema
-from api.cruds.common import get_model_by_id
 
 
 async def get_card(
     db: AsyncSession, card_id: str, user_id: str
 ) -> card_model.Card:
-    card = await get_model_by_id(db, card_model.Card, card_id)
+    stmt = select(card_model.Card).filter_by(id=card_id)
+    result = await db.execute(stmt)
+    card = result.scalar_one_or_none()
 
     if not card:
         raise HTTPException(status_code=404, detail='Deck not found')
