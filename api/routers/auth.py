@@ -17,7 +17,7 @@ router = APIRouter()
 @router.post('/signup', response_model=bool)
 async def signup(
     form_data: auth_schema.SignupRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     new_user = await user_cruds.create_user(db, form_data)
     await auth_cruds.create_verification(db, new_user.email)
@@ -26,8 +26,7 @@ async def signup(
 
 @router.post('/verification', response_model=str | None)
 async def verification(
-        body: auth_schema.Verification,
-        db: AsyncSession = Depends(get_db)
+    body: auth_schema.Verification, db: AsyncSession = Depends(get_db)
 ):
     await auth_cruds.verify_user_code(db, body)
 
@@ -39,15 +38,15 @@ async def verification(
 @router.post('/login')
 async def login_for_access_token(
     form_data: auth_schema.EmailPasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> auth_schema.Token:
     user = await user_cruds.authenticate_user(db, form_data)
     access_token_expires = timedelta(
-        minutes=int(
-            env.ACCESS_TOKEN_EXPIRE_MINUTES
-        )
+        minutes=int(env.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     access_token = auth_cruds.create_access_token(
         data={'sub': user.id}, expires_delta=access_token_expires
     )
-    return auth_schema.Token(access_token=access_token, token_type='bearer').model_dump()
+    return auth_schema.Token(
+        access_token=access_token, token_type='bearer'
+    ).model_dump()

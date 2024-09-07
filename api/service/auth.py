@@ -9,21 +9,18 @@ from api.db import get_db
 from api.cruds.user import get_user
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+
 
 def get_user_id_by_token(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Could not validate credentials',
-        headers={"WWW-Authenticate": "Bearer"},
+        headers={'WWW-Authenticate': 'Bearer'},
     )
 
     try:
-        payload = jwt.decode(
-            token,
-            env.SECRET_KEY,
-            algorithms=[env.ALGORITHM]
-        )
+        payload = jwt.decode(token, env.SECRET_KEY, algorithms=[env.ALGORITHM])
         user_id: str = payload.get('sub')
         if user_id is None:
             raise credentials_exception
@@ -32,11 +29,12 @@ def get_user_id_by_token(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return token_data
 
+
 async def get_active_user_permission(
     db: AsyncSession = Depends(get_db),
-    token_data: TokenData = Depends(get_user_id_by_token)
+    token_data: TokenData = Depends(get_user_id_by_token),
 ):
     user = await get_user(db, token_data.user_id)
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400, detail='Inactive user')
     return user

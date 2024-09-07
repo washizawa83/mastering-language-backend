@@ -10,18 +10,19 @@ from api.db import get_db
 
 router = APIRouter()
 
+
 @router.get('/deck/{deck_id}', response_model=deck_schema.DeckResponse)
 async def get_deck(
-        deck_id: str,
-        db: AsyncSession = Depends(get_db),
-        user: user_schema.User = Depends(get_active_user_permission),
+    deck_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: user_schema.User = Depends(get_active_user_permission),
 ):
     deck = await deck_cruds.get_deck(db, deck_id, user.id)
     return deck_schema.DeckResponse(
         id=deck.id,
         name=deck.name,
         updated_at=deck.updated_at,
-        created_at=deck.created_at
+        created_at=deck.created_at,
     ).model_dump()
 
 
@@ -36,8 +37,10 @@ async def get_decks(
             id=deck.id,
             name=deck.name,
             updated_at=deck.updated_at,
-            created_at=deck.created_at
-        ).model_dump() for deck in decks]
+            created_at=deck.created_at,
+        ).model_dump()
+        for deck in decks
+    ]
 
 
 @router.post('/deck', response_model=deck_schema.DeckResponse)
@@ -51,7 +54,7 @@ async def create_deck(
         id=deck.id,
         name=deck.name,
         updated_at=deck.updated_at,
-        created_at=deck.created_at
+        created_at=deck.created_at,
     ).model_dump()
 
 

@@ -7,19 +7,20 @@ import api.schemas.auth as auth_schema
 import api.utils.auth as auth_util
 
 
-async def get_user(
-    db: AsyncSession, user_id: str
-) -> user_model.User:
+async def get_user(db: AsyncSession, user_id: str) -> user_model.User:
     stmt = select(user_model.User).filter_by(id=user_id)
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
     return user
 
+
 async def create_user(
     db: AsyncSession, form_data: auth_schema.SignupRequestForm
 ) -> user_model.User:
     if await is_email_registered(db, form_data.email):
-        raise HTTPException(status_code=400, detail="Email is already registered")
+        raise HTTPException(
+            status_code=400, detail='Email is already registered'
+        )
 
     user = user_model.User(
         username=form_data.username,
@@ -40,7 +41,7 @@ async def update_user_state(
     user = result.scalar_one_or_none()
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail='User not found')
 
     user.is_active = True
     await db.commit()
@@ -50,20 +51,19 @@ async def update_user_state(
 
 
 async def authenticate_user(
-    db: AsyncSession,
-    form_data: auth_schema.EmailPasswordRequestForm
+    db: AsyncSession, form_data: auth_schema.EmailPasswordRequestForm
 ) -> user_model.User:
     stmt = select(user_model.User).filter_by(email=form_data.email)
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail='User not found')
     if not auth_util.verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail='Incorrect username or password',
+            headers={'WWW-Authenticate': 'Bearer'},
         )
     return user
 
