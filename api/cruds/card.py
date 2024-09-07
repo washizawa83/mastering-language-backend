@@ -59,6 +59,22 @@ async def create_card(
     return card
 
 
+async def update_card(
+    db: AsyncSession,
+    form_data: card_schema.CardUpdate,
+    card_id: str,
+    user_id: str,
+):
+    card = await get_card(db, card_id, user_id)
+    card.sentence = form_data.sentence
+    card.meaning = form_data.meaning
+    card.image_path = form_data.image_path
+    card.etymology = form_data.etymology
+    await db.commit()
+    await db.refresh(card)
+    return card
+
+
 async def delete_card(db: AsyncSession, card: card_model.Card):
     await db.delete(card)
     await db.commit()

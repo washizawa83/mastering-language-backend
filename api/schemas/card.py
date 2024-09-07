@@ -15,6 +15,10 @@ class CardCreate(BaseCard):
     pass
 
 
+class CardUpdate(BaseCard):
+    pass
+
+
 class CardResponse(BaseCard):
     id: uuid.UUID
     previous_answer_date: datetime | None = None
