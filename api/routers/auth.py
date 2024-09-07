@@ -50,4 +50,4 @@ async def login_for_access_token(
     access_token = auth_cruds.create_access_token(
         data={'sub': user.id}, expires_delta=access_token_expires
     )
-    return auth_schema.Token(access_token=access_token, token_type='bearer')
+    return auth_schema.Token(access_token=access_token, token_type='bearer').model_dump()
