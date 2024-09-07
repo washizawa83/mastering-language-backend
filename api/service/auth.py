@@ -26,7 +26,7 @@ def get_user_id_by_token(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
         token_data = TokenData(user_id=user_id)
     except JWTError:
-        raise credentials_exception
+        raise credentials_exception from None
     return token_data
 
 

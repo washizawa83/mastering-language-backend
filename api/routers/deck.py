@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.schemas.deck as deck_schema
 import api.schemas.user as user_schema
-import api.cruds.deck as deck_cruds
+import api.cruds.deck as deck_crud
 from api.service.auth import get_active_user_permission
 from api.db import get_db
 
@@ -17,13 +17,8 @@ async def get_deck(
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    deck = await deck_cruds.get_deck(db, deck_id, user.id)
-    return deck_schema.DeckResponse(
-        id=deck.id,
-        name=deck.name,
-        updated_at=deck.updated_at,
-        created_at=deck.created_at,
-    ).model_dump()
+    deck = await deck_crud.get_deck(db, deck_id, user.id)
+    return deck_schema.DeckResponse.model_validate(deck)
 
 
 @router.get('/decks', response_model=list[deck_schema.DeckResponse])
@@ -31,16 +26,8 @@ async def get_decks(
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    decks = await deck_cruds.get_decks(db, user.id)
-    return [
-        deck_schema.DeckResponse(
-            id=deck.id,
-            name=deck.name,
-            updated_at=deck.updated_at,
-            created_at=deck.created_at,
-        ).model_dump()
-        for deck in decks
-    ]
+    decks = await deck_crud.get_decks(db, user.id)
+    return [deck_schema.DeckResponse.model_validate(deck) for deck in decks]
 
 
 @router.post('/deck', response_model=deck_schema.DeckResponse)
@@ -49,13 +36,8 @@ async def create_deck(
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    deck = await deck_cruds.create_deck(db, form_data, user.id)
-    return deck_schema.DeckResponse(
-        id=deck.id,
-        name=deck.name,
-        updated_at=deck.updated_at,
-        created_at=deck.created_at,
-    ).model_dump()
+    deck = await deck_crud.create_deck(db, form_data, user.id)
+    return deck_schema.DeckResponse.model_validate(deck)
 
 
 @router.delete('/deck/{deck_id}', response_model=None)
@@ -64,5 +46,5 @@ async def delete_deck(
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    deck = await deck_cruds.get_deck(db, deck_id, user.id)
-    return await deck_cruds.delete_deck(db, deck)
+    deck = await deck_crud.get_deck(db, deck_id, user.id)
+    return await deck_crud.delete_deck(db, deck)
