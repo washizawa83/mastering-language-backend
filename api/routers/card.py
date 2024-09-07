@@ -28,10 +28,7 @@ async def get_cards(
     user: user_schema.User = Depends(get_active_user_permission),
 ):
     cards = await card_crud.get_cards(db, deck_id)
-    return [
-        card_schema.CardResponse.model_validate(card)
-        for card in cards
-    ]
+    return [card_schema.CardResponse.model_validate(card) for card in cards]
 
 
 @router.post('/card{deck_id}', response_model=card_schema.CardResponse)

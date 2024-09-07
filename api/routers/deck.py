@@ -27,10 +27,7 @@ async def get_decks(
     user: user_schema.User = Depends(get_active_user_permission),
 ):
     decks = await deck_crud.get_decks(db, user.id)
-    return [
-        deck_schema.DeckResponse.model_validate(deck)
-        for deck in decks
-    ]
+    return [deck_schema.DeckResponse.model_validate(deck) for deck in decks]
 
 
 @router.post('/deck', response_model=deck_schema.DeckResponse)
