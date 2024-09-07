@@ -42,6 +42,17 @@ async def create_card(
     return card_schema.CardResponse.model_validate(card)
 
 
+@router.put('/card/{card_id}', response_model=card_schema.CardResponse)
+async def update_card(
+    card_id: str,
+    form_data: card_schema.CardUpdate = Depends(),
+    db: AsyncSession = Depends(get_db),
+    user: user_schema.User = Depends(get_active_user_permission),
+):
+    card = await card_crud.update_card(db, form_data, card_id, user.id)
+    return card_schema.CardResponse.model_validate(card)
+
+
 @router.delete('/card/{card_id', response_model=None)
 async def delete_card(
     card_id: str,
