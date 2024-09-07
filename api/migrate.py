@@ -19,5 +19,5 @@ def reset_database():
     deck_base.metadata.create_all(bind=engine)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     reset_database()

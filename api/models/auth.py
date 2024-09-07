@@ -4,6 +4,7 @@ from sqlalchemy_utils import EmailType
 
 from api.db import Base
 
+
 class Verification(Base):
     __tablename__ = 'verifications'
 
