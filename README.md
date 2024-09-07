@@ -28,4 +28,12 @@ docker-compose exec db mysql app
 docker-compose exec app poetry run python -m api.migrate
 ```
 
+lintチェック
+```shell
+ruff check
+```
 
+コードフォーマット
+```shell
+ruff format
+```

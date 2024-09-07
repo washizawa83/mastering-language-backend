@@ -6,14 +6,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utils import UUIDType, EmailType
 
 from api.db import Base
-from api.models.deck import Deck
-from api.models.card import Card
 
 
 class User(Base):
     __tablename__ = 'users'
 
-    id: Mapped[str] = mapped_column(
+    id: Mapped[uuid.UUID] = mapped_column(
         UUIDType(binary=False), primary_key=True, default=uuid.uuid4
     )
     username: Mapped[str] = mapped_column(String(1024))
@@ -21,10 +19,10 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(1024))
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    decks: Mapped[List[Deck]] = relationship(
+    decks: Mapped[List['Deck']] = relationship(
         back_populates='user', cascade='all, delete-orphan'
     )
 
-    cards: Mapped[List[Card]] = relationship(
+    cards: Mapped[List['Card']] = relationship(
         back_populates='user', cascade='all, delete-orphan'
     )

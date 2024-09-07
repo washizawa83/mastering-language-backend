@@ -11,10 +11,6 @@ class BaseCard(BaseModel):
     etymology: str | None = None
 
 
-class CardRequest(BaseModel):
-    id: str
-
-
 class CardCreate(BaseCard):
     pass
 

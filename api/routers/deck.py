@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.schemas.deck as deck_schema
 import api.schemas.user as user_schema
-import api.cruds.deck as deck_cruds
+import api.cruds.deck as deck_crud
 from api.service.auth import get_active_user_permission
 from api.db import get_db
 
@@ -17,7 +17,7 @@ async def get_deck(
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    deck = await deck_cruds.get_deck(db, deck_id, user.id)
+    deck = await deck_crud.get_deck(db, deck_id, user.id)
     return deck_schema.DeckResponse(
         id=deck.id,
         name=deck.name,
@@ -31,7 +31,7 @@ async def get_decks(
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    decks = await deck_cruds.get_decks(db, user.id)
+    decks = await deck_crud.get_decks(db, user.id)
     return [
         deck_schema.DeckResponse(
             id=deck.id,
@@ -49,7 +49,7 @@ async def create_deck(
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    deck = await deck_cruds.create_deck(db, form_data, user.id)
+    deck = await deck_crud.create_deck(db, form_data, user.id)
     return deck_schema.DeckResponse(
         id=deck.id,
         name=deck.name,
@@ -64,5 +64,5 @@ async def delete_deck(
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
-    deck = await deck_cruds.get_deck(db, deck_id, user.id)
-    return await deck_cruds.delete_deck(db, deck)
+    deck = await deck_crud.get_deck(db, deck_id, user.id)
+    return await deck_crud.delete_deck(db, deck)

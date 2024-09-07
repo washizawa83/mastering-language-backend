@@ -12,17 +12,13 @@ class DeckCreate(BaseDeck):
     pass
 
 
-class DeckRequest(BaseDeck):
-    id: uuid.UUID
-
-
 class DeckResponse(BaseDeck):
     id: uuid.UUID
     updated_at: datetime
     created_at: datetime
 
     @model_serializer
-    def serialize(self) -> dict[str, str]:
+    def serialize(self):
         return {
             'id': str(self.id),
             'name': self.name,
