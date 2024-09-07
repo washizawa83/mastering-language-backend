@@ -1,5 +1,6 @@
 import os
-import smtplib, ssl
+import smtplib
+import ssl
 from email.mime.text import MIMEText
 from typing import Callable, Awaitable
 from functools import wraps
