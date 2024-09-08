@@ -67,7 +67,7 @@ async def login_for_access_token(
     return auth_schema.Token(access_token=access_token, token_type='bearer')
 
 
-@router.post('login-and-user-verify')
+@router.post('/login-and-user-verify')
 async def login_and_user_verify(
     form_data: auth_schema.LoginAndVerifyForm,
     db: AsyncSession = Depends(get_db),
