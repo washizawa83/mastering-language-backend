@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.post('/signup', response_model=bool)
 async def signup(
-    form_data: auth_schema.SignupRequestForm = Depends(),
+    form_data: auth_schema.SignupRequestForm,
     db: AsyncSession = Depends(get_db),
 ):
     new_user = await user_crud.create_user(db, form_data)
@@ -38,7 +38,6 @@ async def signup_verify(
 
 @router.get('/verify', response_model=None)
 async def verify(
-    db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
     credentials_exception = HTTPException(
@@ -57,6 +56,31 @@ async def login_for_access_token(
     db: AsyncSession = Depends(get_db),
 ) -> auth_schema.Token:
     user = await user_crud.authenticate_user(db, form_data)
+    if not user.is_active:
+        raise HTTPException(status_code=401, detail='Inactive user')
+    access_token_expires = timedelta(
+        minutes=int(env.ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    access_token = auth_crud.create_access_token(
+        data={'sub': user.id}, expires_delta=access_token_expires
+    )
+    return auth_schema.Token(access_token=access_token, token_type='bearer')
+
+
+@router.post('login-and-user-verify')
+async def login_and_user_verify(
+    form_data: auth_schema.LoginAndVerifyForm,
+    db: AsyncSession = Depends(get_db),
+) -> auth_schema.Token:
+    serialized_form_data = auth_schema.EmailPasswordRequestForm(
+        email=form_data.email, password=form_data.password
+    )
+    user = await user_crud.authenticate_user(db, serialized_form_data)
+
+    user.is_active = True
+    await db.commit()
+    await db.refresh(user)
+
     access_token_expires = timedelta(
         minutes=int(env.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
