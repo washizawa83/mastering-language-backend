@@ -20,6 +20,10 @@ class EmailPasswordRequestForm(BaseModel):
     password: str
 
 
+class LoginAndVerifyForm(Verification):
+    password: str
+
+
 class SignupRequestForm(BaseModel):
     username: str
     email: EmailStr
