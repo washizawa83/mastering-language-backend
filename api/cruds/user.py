@@ -18,7 +18,8 @@ async def create_user(
 ) -> user_model.User:
     if await is_email_registered(db, form_data.email):
         raise HTTPException(
-            status_code=400, detail='Email is already registered'
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Email is already registered',
         )
 
     user = user_model.User(
@@ -40,7 +41,9 @@ async def update_user_state(
     user = result.scalar_one_or_none()
 
     if not user:
-        raise HTTPException(status_code=404, detail='User not found')
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='User not found'
+        )
 
     user.is_active = True
     await db.commit()
@@ -55,7 +58,9 @@ async def authenticate_user(
     user = await get_user_by_email(db, form_data.email)
 
     if not user:
-        raise HTTPException(status_code=404, detail='User not found')
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='User not found'
+        )
     if not auth_util.verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

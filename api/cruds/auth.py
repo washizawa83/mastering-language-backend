@@ -4,7 +4,7 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from jose import jwt
 
 import api.models.auth as auth_model
@@ -75,7 +75,8 @@ async def verify_user_code(
 
     if not stored_verification:
         raise HTTPException(
-            status_code=400, detail='Authentication information does not exist'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Authentication information does not exist',
         )
 
     if (
@@ -84,7 +85,8 @@ async def verify_user_code(
     ):
         await update_verification(db, verification_data)
         raise HTTPException(
-            status_code=400, detail='Incorrect authentication information'
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Incorrect authentication information',
         )
 
 

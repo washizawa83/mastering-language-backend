@@ -57,7 +57,9 @@ async def login_for_access_token(
 ) -> auth_schema.Token:
     user = await user_crud.authenticate_user(db, form_data)
     if not user.is_active:
-        raise HTTPException(status_code=401, detail='Inactive user')
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail='Inactive user'
+        )
     access_token_expires = timedelta(
         minutes=int(env.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
