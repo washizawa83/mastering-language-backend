@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 import api.models.deck as deck_model
 import api.models.user as user_model
@@ -19,7 +19,8 @@ async def get_deck(
 
     if deck.user_id != user_id:
         raise HTTPException(
-            status_code=403, detail='You are not authorized to deck.'
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='You are not authorized to deck.',
         )
 
     return deck
@@ -35,7 +36,9 @@ async def get_decks(db: AsyncSession, user_id: str) -> list[deck_model.Deck]:
     user = result.scalar_one_or_none()
 
     if not user:
-        raise HTTPException(status_code=404, detail='User not found')
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='User not found'
+        )
     return user.decks
 
 

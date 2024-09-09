@@ -36,5 +36,7 @@ async def get_active_user_permission(
 ):
     user = await get_user(db, token_data.user_id)
     if not user.is_active:
-        raise HTTPException(status_code=401, detail='Inactive user')
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail='Inactive user'
+        )
     return user
