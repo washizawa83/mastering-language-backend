@@ -52,11 +52,17 @@ async def verify(
 
 @router.post('/login')
 async def login_for_access_token(
-    form_data: auth_schema.EmailPasswordRequestForm = Depends(),
+    form_data: auth_schema.EmailPasswordRequestForm,
     db: AsyncSession = Depends(get_db),
 ) -> auth_schema.Token:
     user = await user_crud.authenticate_user(db, form_data)
     if not user.is_active:
+        await auth_crud.update_verification(
+            db,
+            auth_schema.Verification(
+                email=user.email, verification_code=000000
+            ),
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail='Inactive user'
         )
