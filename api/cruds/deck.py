@@ -1,9 +1,11 @@
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, aliased
 from fastapi import HTTPException, status
 
 import api.models.deck as deck_model
+import api.models.card as card_model
 import api.models.user as user_model
 import api.schemas.deck as deck_schema
 from api.cruds.common import get_model_by_id
@@ -40,6 +42,34 @@ async def get_decks(db: AsyncSession, user_id: str) -> list[deck_model.Deck]:
             status_code=status.HTTP_404_NOT_FOUND, detail='User not found'
         )
     return user.decks
+
+
+async def get_decks_and_card_count(
+    db: AsyncSession, user_id: str
+) -> list[deck_schema.DeckWithCardCountModel]:
+    Deck = aliased(deck_model.Deck)
+    Card = aliased(card_model.Card)
+
+    stmt = (
+        select(Deck, func.count(Card.id).label('card_count'))
+        .join(Card, Deck.id == Card.deck_id, isouter=True)
+        .filter(Deck.user_id == user_id)
+        .group_by(Deck.id)
+    )
+
+    result = await db.execute(stmt)
+    decks_with_card_count = result.all()
+
+    if not decks_with_card_count:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User or Deck not found',
+        )
+
+    return [
+        {'deck': deck, 'card_count': card_count}
+        for deck, card_count in decks_with_card_count
+    ]
 
 
 async def create_deck(
