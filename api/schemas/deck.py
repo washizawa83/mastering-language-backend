@@ -33,3 +33,20 @@ class DeckResponse(BaseDeck):
             'updated_at': self.updated_at.isoformat(),
             'created_at': self.created_at.isoformat(),
         }
+
+
+class DeckWithCardCountModel(BaseModel):
+    deck: DeckResponse
+    card_count: int
+
+
+class DeckWithCardCountResponse(DeckWithCardCountModel):
+    @model_serializer
+    def serialize(self):
+        return {
+            'id': str(self.deck.id),
+            'name': self.deck.name,
+            'card_count': self.card_count,
+            'updated_at': self.deck.updated_at.isoformat(),
+            'created_at': self.deck.created_at.isoformat(),
+        }

@@ -30,9 +30,25 @@ async def get_decks(
     return [deck_schema.DeckResponse.model_validate(deck) for deck in decks]
 
 
+@router.get(
+    '/decks-with-card-count',
+    response_model=list[deck_schema.DeckWithCardCountResponse] | None,
+)
+async def get_decks_with_card_count(
+    db: AsyncSession = Depends(get_db),
+    user: user_schema.User = Depends(get_active_user_permission),
+):
+    decks = await deck_crud.get_decks_and_card_count(db, user.id)
+    return [
+        deck_schema.DeckWithCardCountResponse.model_validate(deck)
+        for deck in decks
+    ]
+    return None
+
+
 @router.post('/deck', response_model=deck_schema.DeckResponse)
 async def create_deck(
-    form_data: deck_schema.DeckCreate = Depends(),
+    form_data: deck_schema.DeckCreate,
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
@@ -43,7 +59,7 @@ async def create_deck(
 @router.put('/deck/{deck_id}', response_model=deck_schema.DeckResponse)
 async def update_deck(
     deck_id: str,
-    form_data: deck_schema.DeckUpdate = Depends(),
+    form_data: deck_schema.DeckUpdate,
     db: AsyncSession = Depends(get_db),
     user: user_schema.User = Depends(get_active_user_permission),
 ):
