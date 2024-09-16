@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from fastapi import HTTPException, status
 
 import api.models.user as user_model
@@ -86,3 +87,17 @@ async def authenticate_user(
 async def is_email_registered(db: AsyncSession, email: str) -> bool:
     user = await get_user_by_email(db, email)
     return user is not None
+
+
+async def get_user_settings(
+    db: AsyncSession, user_id: str
+) -> user_model.UserSettings:
+    stmt = (
+        select(user_model.User)
+        .options(selectinload(user_model.User.user_settings))
+        .filter_by(id=user_id)
+    )
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
+    return user.user_settings

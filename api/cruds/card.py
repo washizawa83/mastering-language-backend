@@ -6,6 +6,8 @@ from fastapi import HTTPException, status
 import api.models.card as card_model
 import api.models.deck as deck_model
 import api.schemas.card as card_schema
+import api.cruds.user as user_crud
+from api.utils.oblivion_curve import get_next_answer_date
 from api.cruds.common import get_model_by_id
 
 
@@ -50,6 +52,7 @@ async def create_card(
     deck_id: str,
     user_id: str,
 ):
+    user_settings = await user_crud.get_user_settings(db, user_id)
     card = card_model.Card(
         sentence=form_data.sentence,
         meaning=form_data.meaning,
@@ -57,6 +60,7 @@ async def create_card(
         etymology=form_data.etymology,
         deck_id=deck_id,
         user_id=user_id,
+        next_answer_date=get_next_answer_date(user_settings.level_one),
     )
     db.add(card)
     await db.commit()

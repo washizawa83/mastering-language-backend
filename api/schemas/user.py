@@ -24,3 +24,21 @@ class UserResponse(BaseUser):
     class Config:
         orm_mode = True
         from_attributes = True
+
+
+class BaseUserSettings(BaseModel):
+    level_one: int
+    level_two: int
+    level_three: int
+    level_four: int
+    level_five: int
+    level_six: int
+    level_seven: int
+
+
+class UserSettings(BaseUserSettings):
+    id: str
+
+
+class UserSettingsResponse(BaseUserSettings):
+    pass
