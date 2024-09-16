@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from fastapi import HTTPException, status
@@ -27,10 +29,21 @@ async def create_user(
         email=form_data.email,
         password=auth_util.get_password_hash(form_data.password),
     )
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
+
+    async with db:
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+
+    await create_user_settings(db, user.id)
+
     return user
+
+
+async def create_user_settings(db: AsyncSession, user_id: uuid.UUID):
+    user_settings = user_model.UserSettings(user_id=user_id)
+    db.add(user_settings)
+    await db.commit()
 
 
 async def update_user_state(

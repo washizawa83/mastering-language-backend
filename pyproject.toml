@@ -20,6 +20,7 @@ pydantic = {extras = ["email"], version = "^2.8.2"}
 ruff = "^0.6.4"
 pre-commit = "^3.8.0"
 boto3 = "^1.35.19"
+python-dateutil = "^2.9.0.post0"
 
 
 [build-system]
