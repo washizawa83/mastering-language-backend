@@ -1,20 +1,16 @@
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from dateutil.relativedelta import relativedelta
+
+MONTH = 2592000
+DAY = 86400
+HOUR = 3600
 
 
 def get_next_answer_date_delta_seconds(
     months: int | None = None, days: int | None = None, hours: int | None = None
 ):
-    now = datetime.now(ZoneInfo('Asia/Tokyo'))
-    next_answer_date_delta = relativedelta(
-        months=months, days=days, hours=hours
-    )
-    next_answer_date = now + next_answer_date_delta
-    next_answer_date_delta = next_answer_date - now
-    next_answer_date_delta_seconds = next_answer_date_delta.total_seconds()
-    return next_answer_date_delta_seconds
+    return months * MONTH + days * DAY + hours * HOUR
 
 
 def get_next_answer_date(next_answer_date_delta_seconds: int):

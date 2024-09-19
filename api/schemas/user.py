@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import TypedDict
 
 
 class BaseUser(BaseModel):
@@ -42,3 +43,19 @@ class UserSettings(BaseUserSettings):
 
 class UserSettingsResponse(BaseUserSettings):
     pass
+
+
+class LevelData(TypedDict):
+    month: int
+    day: int
+    hour: int
+
+
+class UserSettingsRequest(BaseModel):
+    level_one: LevelData
+    level_two: LevelData
+    level_three: LevelData
+    level_four: LevelData
+    level_five: LevelData
+    level_six: LevelData
+    level_seven: LevelData

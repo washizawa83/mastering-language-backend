@@ -7,7 +7,9 @@ from fastapi import HTTPException, status
 
 import api.models.user as user_model
 import api.schemas.auth as auth_schema
+import api.schemas.user as user_schema
 import api.utils.auth as auth_util
+import api.utils.oblivion_curve as oblivion_curve_util
 from api.cruds.common import get_model_by_id, get_user_by_email
 
 
@@ -101,3 +103,38 @@ async def get_user_settings(
     user = result.scalar_one_or_none()
 
     return user.user_settings
+
+
+async def update_user_settings(
+    db: AsyncSession, user_id: str, form_data: user_schema.UserSettingsRequest
+):
+    stmt = (
+        select(user_model.User)
+        .options(selectinload(user_model.User.user_settings))
+        .filter_by(id=user_id)
+    )
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+    user_settings = user.user_settings
+
+    levels = [
+        'level_one',
+        'level_two',
+        'level_three',
+        'level_four',
+        'level_five',
+        'level_six',
+        'level_seven',
+    ]
+
+    for level in levels:
+        oblivion_curve_date = getattr(form_data, level)
+        result = oblivion_curve_util.get_next_answer_date_delta_seconds(
+            oblivion_curve_date['month'],
+            oblivion_curve_date['day'],
+            oblivion_curve_date['hour'],
+        )
+        setattr(user_settings, level, result)
+
+    await db.commit()
+    await db.refresh(user_settings)
