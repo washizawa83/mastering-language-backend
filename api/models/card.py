@@ -26,7 +26,7 @@ class Card(Base):
         TIMESTAMP, nullable=True
     )
     retention_state: Mapped[bool] = mapped_column(Boolean, default=False)
-    savings_score: Mapped[int] = mapped_column(Integer, default=0)
+    savings_score: Mapped[int] = mapped_column(Integer, default=1)
 
     updated_at: Mapped[datetime] = mapped_column(
         TIMESTAMP, server_default=func.now(), onupdate=func.current_timestamp()

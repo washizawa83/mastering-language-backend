@@ -38,6 +38,7 @@ class DeckResponse(BaseDeck):
 class DeckWithCardCountModel(BaseModel):
     deck: DeckResponse
     card_count: int
+    answer_replay_count: int
 
 
 class DeckWithCardCountResponse(DeckWithCardCountModel):
@@ -47,6 +48,7 @@ class DeckWithCardCountResponse(DeckWithCardCountModel):
             'id': str(self.deck.id),
             'name': self.deck.name,
             'card_count': self.card_count,
+            'answer_replay_count': self.answer_replay_count,
             'updated_at': self.deck.updated_at.isoformat(),
             'created_at': self.deck.created_at.isoformat(),
         }

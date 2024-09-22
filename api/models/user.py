@@ -40,6 +40,10 @@ class User(Base):
         back_populates='user', cascade='all, delete-orphan'
     )
 
+    user_summaries: Mapped['UserSummary'] = relationship(
+        back_populates='user', cascade='all, delete-orphan'
+    )
+
 
 class UserSettings(Base):
     __tablename__ = 'user_settings'
@@ -61,3 +65,42 @@ class UserSettings(Base):
     )
 
     __table_args__ = (UniqueConstraint('user_id'),)
+
+
+class UserSummary(Base):
+    __tablename__ = 'user_summaries'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUIDType(binary=False), primary_key=True, default=uuid.uuid4
+    )
+    consecutive_login_days: Mapped[int] = mapped_column(
+        Integer, default=1
+    )  # 連続ログイン日数
+
+    level_one_answers: Mapped[int] = mapped_column(Integer, default=0)  # 回答数
+    level_one_correct_answers: Mapped[int] = mapped_column(
+        Integer, default=0
+    )  # 正答数
+
+    level_two_answers: Mapped[int] = mapped_column(Integer, default=0)
+    level_two_correct_answers: Mapped[int] = mapped_column(Integer, default=0)
+
+    level_three_answers: Mapped[int] = mapped_column(Integer, default=0)
+    level_three_correct_answers: Mapped[int] = mapped_column(Integer, default=0)
+
+    level_four_answers: Mapped[int] = mapped_column(Integer, default=0)
+    level_four_correct_answers: Mapped[int] = mapped_column(Integer, default=0)
+
+    level_five_answers: Mapped[int] = mapped_column(Integer, default=0)
+    level_five_correct_answers: Mapped[int] = mapped_column(Integer, default=0)
+
+    level_six_answers: Mapped[int] = mapped_column(Integer, default=0)
+    level_six_correct_answers: Mapped[int] = mapped_column(Integer, default=0)
+
+    level_seven_answers: Mapped[int] = mapped_column(Integer, default=0)
+    level_seven_correct_answers: Mapped[int] = mapped_column(Integer, default=0)
+
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('users.id'))
+    user: Mapped['User'] = relationship(
+        back_populates='user_summaries', single_parent=True
+    )
