@@ -36,6 +36,19 @@ async def get_cards(
     return [card_schema.CardResponse.model_validate(card) for card in cards]
 
 
+@router.get(
+    '/answer-replay-cards/{deck_id}',
+    response_model=list[card_schema.CardResponse],
+)
+async def get_answer_replay_cards(
+    deck_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: user_schema.User = Depends(get_active_user_permission),
+):
+    cards = await card_crud.get_answer_replay_cards(db, deck_id)
+    return cards
+
+
 @router.post('/card/{deck_id}', response_model=card_schema.CardResponse)
 async def create_card(
     deck_id: str,
@@ -56,6 +69,17 @@ async def update_card(
 ):
     card = await card_crud.update_card(db, form_data, card_id, user.id)
     return card_schema.CardResponse.model_validate(card)
+
+
+@router.put('/card-answer/{card_id}', response_model=None)
+async def update_card_answer(
+    card_id: str,
+    form_data: card_schema.CardUpdateForAnswerRequest,
+    db: AsyncSession = Depends(get_db),
+    user: user_schema.User = Depends(get_active_user_permission),
+):
+    await card_crud.update_card_answer(db, form_data, card_id, user.id)
+    return None
 
 
 @router.delete('/card/{card_id}', response_model=None)

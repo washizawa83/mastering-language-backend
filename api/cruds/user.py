@@ -38,7 +38,11 @@ async def create_user(
         await db.commit()
         await db.refresh(user)
 
-    await create_user_settings(db, user.id)
+    async with db:
+        await create_user_settings(db, user.id)
+
+    async with db:
+        await create_user_summaries(db, user.id)
 
     return user
 
@@ -46,6 +50,12 @@ async def create_user(
 async def create_user_settings(db: AsyncSession, user_id: uuid.UUID):
     user_settings = user_model.UserSettings(user_id=user_id)
     db.add(user_settings)
+    await db.commit()
+
+
+async def create_user_summaries(db: AsyncSession, user_id: uuid.UUID):
+    user_summaries = user_model.UserSummary(user_id=user_id)
+    db.add(user_summaries)
     await db.commit()
 
 
@@ -103,6 +113,73 @@ async def get_user_settings(
     user = result.scalar_one_or_none()
 
     return user.user_settings
+
+
+async def get_user_summary(
+    db: AsyncSession, user_id: str
+) -> user_model.UserSummary:
+    stmt = (
+        select(user_model.User)
+        .options(selectinload(user_model.User.user_summaries))
+        .filter_by(id=user_id)
+    )
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
+    return user.user_summaries
+
+
+async def get_answer_date_from_saving_score(
+    db: AsyncSession, user_id: str, saving_score: int
+) -> int:
+    user_settings = await get_user_settings(db, user_id)
+
+    level_mapping = {
+        1: user_settings.level_one,
+        2: user_settings.level_two,
+        3: user_settings.level_three,
+        4: user_settings.level_four,
+        5: user_settings.level_five,
+        6: user_settings.level_six,
+    }
+    return level_mapping.get(saving_score, user_settings.level_seven)
+
+
+async def get_user_summary_update_level(
+    user_summary: user_model.UserSummary, saving_score: int
+):
+    user_summary_update_level_mapping = {
+        1: [
+            user_summary.level_one_answers,
+            user_summary.level_one_correct_answers,
+        ],
+        2: [
+            user_summary.level_two_answers,
+            user_summary.level_two_correct_answers,
+        ],
+        3: [
+            user_summary.level_three_answers,
+            user_summary.level_three_correct_answers,
+        ],
+        4: [
+            user_summary.level_four_answers,
+            user_summary.level_four_correct_answers,
+        ],
+        5: [
+            user_summary.level_five_answers,
+            user_summary.level_five_correct_answers,
+        ],
+        6: [
+            user_summary.level_six_answers,
+            user_summary.level_six_correct_answers,
+        ],
+        7: [
+            user_summary.level_seven_answers,
+            user_summary.level_seven_correct_answers,
+        ],
+    }
+
+    return user_summary_update_level_mapping.get(saving_score)
 
 
 async def update_user_settings(

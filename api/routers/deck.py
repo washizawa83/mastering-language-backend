@@ -39,6 +39,8 @@ async def get_decks_with_card_count(
     user: user_schema.User = Depends(get_active_user_permission),
 ):
     decks = await deck_crud.get_decks_and_card_count(db, user.id)
+    print('#' * 100)
+    print(decks)
     return [
         deck_schema.DeckWithCardCountResponse.model_validate(deck)
         for deck in decks

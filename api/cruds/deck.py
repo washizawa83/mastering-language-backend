@@ -1,4 +1,7 @@
-from sqlalchemy import func
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from sqlalchemy import func, case
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload, aliased
@@ -51,7 +54,19 @@ async def get_decks_and_card_count(
     Card = aliased(card_model.Card)
 
     stmt = (
-        select(Deck, func.count(Card.id).label('card_count'))
+        select(
+            Deck,
+            func.count(Card.id).label('card_count'),
+            func.count(
+                case(
+                    (
+                        Card.next_answer_date
+                        < datetime.now(ZoneInfo('Asia/Tokyo')),
+                        1,
+                    )
+                )
+            ).label('answer_replay_count'),
+        )
         .join(Card, Deck.id == Card.deck_id, isouter=True)
         .filter(Deck.user_id == user_id)
         .group_by(Deck.id)
@@ -67,8 +82,12 @@ async def get_decks_and_card_count(
         )
 
     return [
-        {'deck': deck, 'card_count': card_count}
-        for deck, card_count in decks_with_card_count
+        {
+            'deck': deck,
+            'card_count': card_count,
+            'answer_replay_count': answer_replay_count,
+        }
+        for deck, card_count, answer_replay_count in decks_with_card_count
     ]
 
 
